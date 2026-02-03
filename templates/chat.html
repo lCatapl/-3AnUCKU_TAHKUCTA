@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="chat-container">
+    <h1>💬 Чат Танкистов</h1>
+    
+    <!-- Сообщения -->
+    <div id="messages" class="messages-container"></div>
+    
+    <!-- Форма отправки -->
+    <form id="chatForm" onsubmit="sendMessage(event)">
+        <input type="text" id="messageInput" placeholder="Напиши сообщение..." maxlength="500">
+        <button type="submit">Отправить</button>
+    </form>
+    
+    {% if current_user.role in ['Admin', 'Moderator'] %}
+    <!-- Панель модерации -->
+    <div class="moderation-panel">
+        <h3>Модерация</h3>
+        <button onclick="showMuteModal()">Замутить</button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Модальное окно мута -->
+<div id="mute-modal" class="modal">
+    <div class="modal-content">
+        <h3>Замутить игрока</h3>
+        <p>Игрок: <span id="mute-target"></span></p>
+        <input type="number" id="mute-duration" placeholder="Минуты">
+        <input type="text" id="mute-reason" placeholder="Причина">
+        <button onclick="performMute()">Замутить</button>
+        <button onclick="closeMuteModal()">Отмена</button>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script>
+function sendMessage(event) {
+    event.preventDefault();
+    const message = document.getElementById('messageInput').value;
+    fetch('/send_message', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: message})
+    }).then(() => {
+        document.getElementById('messageInput').value = '';
+        loadMessages();
+    });
+}
+</script>
+{% endblock %}

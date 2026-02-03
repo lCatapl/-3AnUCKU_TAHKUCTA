@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-form">
+    <h1>Вход</h1>
+    <form method="POST">
+        <input type="text" name="username" placeholder="Имя пользователя" required>
+        <input type="password" name="password" placeholder="Пароль" required>
+        <button type="submit">Войти</button>
+    </form>
+    <p>Админы: Назар / CatNap (пароль: 120187)</p>
+    <p>Нет аккаунта? <a href="/register">Регистрация</a></p>
+</form>
+{% endblock %}

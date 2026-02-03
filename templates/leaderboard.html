@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="leaderboard">
+    <h1>🏆 Лидерборд</h1>
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th>Место</th>
+                <th>Игрок</th>
+                <th>Рейтинг</th>
+                <th>Побед</th>
+                <th>Звание</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i, player in players|enumerate(1) %}
+            <tr>
+                <td>{{ i }}</td>
+                <td>{{ player.name }}</td>
+                <td>{{ player.rating }}</td>
+                <td>{{ player.wins }}</td>
+                <td>Генерал</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="profile">
+    <h1>👤 Профиль: {{ current_user.username }}</h1>
+    <p>Звание: <strong>{{ current_user.role }}</strong></p>
+    
+    <h3>Мои заметки</h3>
+    <form method="POST" action="/add_note">
+        <textarea name="note" placeholder="Добавь свою заметку о танках..."></textarea>
+        <input type="text" name="tank_type" placeholder="Тип танка">
+        <button type="submit">Сохранить</button>
+    </form>
+</div>
+{% endblock %}

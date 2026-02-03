@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="diary-container">
+    <h1>📖 Записки Танкиста 1941-1945</h1>
+    
+    <!-- Фильтр по танкам -->
+    <div class="filter-section">
+        <select id="tankFilter">
+            <option value="">Все танки</option>
+            <option value="Т-34">Т-34</option>
+            <option value="КВ-1">КВ-1</option>
+            <option value="ИС-2">ИС-2</option>
+        </select>
+        <button onclick="loadStories()">Фильтр</button>
+    </div>
+    
+    <!-- Записки -->
+    <div id="storiesList" class="stories-grid"></div>
+</div>
+
+<script>
+async function loadStories() {
+    const filter = document.getElementById('tankFilter').value;
+    const response = await fetch(`/api/stories?tank=${filter}`);
+    const data = await response.json();
+    displayStories(data.stories);
+}
+loadStories(); // Загрузка при открытии
+</script>
+{% endblock %}

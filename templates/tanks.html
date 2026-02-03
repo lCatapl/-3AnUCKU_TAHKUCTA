@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="tanks-catalog">
+    <h1>🎖️ Каталог всех танков WoT</h1>
+    
+    {% for category, nations in tanks.items() %}
+    <div class="tank-category">
+        <h2>{{ category }}</h2>
+        {% for nation, tank_list in nations.items() %}
+        <div class="nation-section">
+            <h3>{{ nation }}</h3>
+            <div class="tank-grid">
+                {% for tank in tank_list %}
+                <div class="tank-card">
+                    <h4>{{ tank }}</h4>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

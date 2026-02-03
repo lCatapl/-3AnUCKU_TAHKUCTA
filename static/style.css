@@ -1,0 +1,17 @@
+/* Тёмная тема танкиста */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { 
+    background: linear-gradient(135deg, #1a1a2e, #16213e); 
+    color: #e94560; 
+    font-family: 'Courier New', monospace; 
+}
+
+nav { 
+    background: rgba(0,0,0,0.9); 
+    padding: 1rem; 
+    display: flex; 
+    gap: 2rem; 
+}
+
+.chat-message.admin { color: #ffd700; font-weight: bold; }
+.chat-message.moderator { color: #00ff88; }
