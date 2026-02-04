@@ -1,27 +1,122 @@
 {
-  "light_tanks": {
-    "СССР": ["Т-34", "Т-26", "БТ-7", "ЛТ-432", "Т-50-2"],
-    "Германия": ["Pz.Kpfw. II", "Pz.Kpfw. 38(t)", "Leopard 1", "Ru 251"],
-    "США": ["M2 Light", "M3 Stuart", "M24 Chaffee"]
+  "СССР": {
+    "1": ["МС-1", "Т-18", "Т-26", "Т-127"],
+    "2": ["Т-28", "Т-46", "БТ-2", "Т-70"],
+    "3": ["Т-34", "КВ-1", "СУ-76М", "ЛТГ"],
+    "4": ["Т-34-85", "КВ-85", "ИС", "СУ-85"],
+    "5": ["ИС-3", "Т-43", "Т-44", "Т-34-100"],
+    "6": ["Т-54", "Obj. 430", "Obj. 140", "Т-44-100"],
+    "7": ["Obj. 252U", "Obj. 380", "ИС-7", "Ф-30"],
+    "8": ["ИС-3", "Obj. 252F", "Т-44-100 (Р)", "ИС-6"],
+    "9": ["Obj. 257", "Obj. 279 (р)", "Obj. 430U", "Obj. 140"],
+    "10": ["Obj. 277", "Obj. 705A", "Obj. 279(e)", "Т-62А"]
   },
-  "medium_tanks": {
-    "СССР": ["Т-34-85", "Т-44", "Т-54", "Объект 140", "Объект 430"],
-    "Германия": ["Panzer IV", "Panther", "E 50", "Leopard 1"],
-    "США": ["Sherman", "M4A3E8", "M48A5", "M60"]
+  "Германия": {
+    "1": ["Leichttraktor", "Grosstraktor", "Pz.Kpfw. 38H 735(f)", "Pz.Kpfw. I"],
+    "2": ["Pz.Kpfw. II", "Pz.Kpfw. 35(t)", "Pz.Kpfw. 38(t)", "MKA"],
+    "3": ["Pz.Kpfw. III Ausf. E", "Pz.Kpfw. III Ausf. F", "BT-42", "Pz.Kpfw. II Ausf. J"],
+    "4": ["Pz.Kpfw. IV Ausf. A", "Pz.Kpfw. IV Ausf. D", "Pz.Kpfw. III Ausf. J", "VK 30.01(P)"],
+    "5": ["Pz.Kpfw. V Panther", "Tiger I", "VK 30.01(D)", "VK 30.02(D)"],
+    "6": ["VK 36.01(H)", "VK 36.01(P)", "Tiger(P)", "Panther Ausf. G"],
+    "7": ["Tiger II (H)", "Tiger II (S)", "E 75", "VK 45.02(P) A"],
+    "8": ["Maus", "VK 45.02(P) Ausf. B", "Progetto M40 mod. 65", "Kugelblitz"],
+    "9": ["VK 72.01(K)", "Maus 165/2", "E 75", "Jagdpanzer E 100"],
+    "10": ["E 100", "VK 72.01(K)", "Pz.Kpfw. VII"]
   },
-  "heavy_tanks": {
-    "СССР": ["КВ-1", "КВ-2", "ИС", "ИС-3", "ИС-7"],
-    "Германия": ["Tiger I", "Tiger II", "Maus", "E 100"],
-    "США": ["T29", "T30", "T57 Heavy"]
+  "США": {
+    "1": ["T1 Cunningham", "M2 Light Tank", "PMMS-1", "18-ton"],
+    "2": ["M2 Medium Tank", "T2 Medium Tank", "M2 Light Tank"],
+    "3": ["M3 Stuart", "M3 Lee", "Renault UE 57", "T82"],
+    "4": ["M4 Sherman", "M4A2E4 Sherman", "T28 Concept", "T40"],
+    "5": ["T20", "T29", "T32", "T25 AT", "T49"],
+    "6": ["M46 Patton", "T42", "T26E5", "T32", "T15"],
+    "7": ["T69", "T54E1", "M42 Crusader", "T25 Pilot"],
+    "8": ["M103", "T92", "T28 Pilot", "T30", "M48A5 Patton"],
+    "9": ["T110E3", "T110E4", "T110E5", "T30", "T55A"],
+    "10": ["T110E5", "T57 Heavy", "T95/FV4201 Chieftain", "M60"]
   },
-  "destroyers": {
-    "СССР": ["СУ-85", "СУ-100", "Объект 268"],
-    "Германия": ["Jagdpanzer", "Ferdinand", "Jagdpanther"],
-    "США": ["M10 Wolverine", "M36 Jackson"]
+  "Франция": {
+    "1": ["Renault FT-AC", "Hotchkiss H39", "AMD. 35", "Renault UE 57"],
+    "2": ["AMX 38", "SAu 40", "D2", "B1"],
+    "3": ["Somua S35", "SAu 40", "ARL V39"],
+    "4": ["ARL 44", "AMX 38", "Somua SAu 40"],
+    "5": ["AMX 13 57", "AMX 12 t", "AMX 13 75", "ARL 90"],
+    "6": ["AMX 13 90", "AMX 12 140", "AMX 50 100"],
+    "7": ["AMX 50 68 t", "AMX 50 120", "AMX 13 F3 AM"],
+    "8": ["AMX 50 B", "AMX M4 1954", "AMX 13 F3 AM mle. 59"],
+    "9": ["AMX 30", "AMX 30 B", "AMX 50 Foch (155)"],
+    "10": ["AMX 30 B", "AMX M4 54", "AMX 50 Foch B"]
   },
-  "artillery": {
-    "СССР": ["СУ-14", "Объект 261"],
-    "Германия": ["Wespe", "G.W. E 100"],
-    "США": ["M44", "T92 HMC"]
+  "Великобритания": {
+    "1": ["Cruiser Mk. I", "Light Mk. I", "Light Mk. II", "Cruiser Mk. II"],
+    "2": ["Crusader", "Cruiser Mk. III", "A13 Mk. II", "Stuart I"],
+    "3": ["Cromwell", "Churchill I", "A27", "Excelsior"],
+    "4": ["Sherman Firefly", "Covenanter", "Matilda Black Prince"],
+    "5": ["Comet", "A43 Black Prince", "Crusader 5-inch", "A30 Challenger"],
+    "6": ["Cromwell B", "FV201 (A45)", "Turtle Mk. I"],
+    "7": ["FV221 Caernarvon", "Centurion Mk. 5", "FV3805"],
+    "8": ["Conqueror", "FV214 Conqueror", "FV4005 Stage II"],
+    "9": ["FV215b", "Conqueror Gun Carriage", "FV4201"],
+    "10": ["Super Conqueror", "FV215b (183)", "Strv 103B-2"]
+  },
+  "Китай": {
+    "1": ["Type 97 Chi-Ha", "Renault NC 31", "Type 64"],
+    "2": ["Chi-Ha Kai", "Pz.Kpfw. 38G", "Type 58"],
+    "3": ["Type 58", "Chi-Nu Kai", "WZ-111"],
+    "4": ["WZ-120", "WZ-131", "Type 59"],
+    "5": ["WZ-121", "59-16", "WZ-111"],
+    "6": ["59-16", "WZ-121", "Type 62"],
+    "7": ["WZ-111 model 1", "WZ-111 model 5A"],
+    "8": ["121", "121B", "WZ-111 model 5A"],
+    "9": ["113", "WZ-113-II"],
+    "10": ["WZ-113G", "113", "121B"]
+  },
+  "Япония": {
+    "1": ["Type 97 Chi-Ha", "Renault FT-AC", "Type 95 Ha-Go"],
+    "2": ["Chi-Ha Kai", "Type 98 Chi-He", "Type 97 Chi-Ha Kai"],
+    "3": ["Type 3 Chi-Nu", "Type 97 Chi-Ha", "Ho-I"],
+    "4": ["STA-1", "Type 61", "Ho-Ri"],
+    "5": ["Type 61", "STA-2", "ST-A2"],
+    "6": ["STB-1", "Type 62", "O-Ho"],
+    "7": ["Type 62", "STA-3"],
+    "8": ["O-Ho", "Type 5 Chi-Ri"],
+    "9": ["Type 5 Heavy", "Ho-Ri 3"],
+    "10": ["Type 5 Chi-Ri", "O-47"]
+  },
+  "Чехословакия": {
+    "1": ["LT vz. 38", "ST vz. 39"],
+    "2": ["LT vz. 51", "Vz. 55"],
+    "3": ["Škoda T 25", "ST-2"],
+    "4": ["Vz. 55", "TNH 105/1000"],
+    "5": ["TVP VTU Koncept", "Škoda T 56"],
+    "6": ["Vz. 55", "TNH 105/1000"],
+    "7": ["TVP T 50/51"],
+    "8": ["TVP VuK 50/100", "Škoda T 50"],
+    "9": ["Vz. 55", "TVP T 50/100"],
+    "10": ["Škoda T 56", "Vz. 68"]
+  },
+  "Швеция": {
+    "1": ["Strv m/42-57", "Strv m/40L"],
+    "2": ["Strv 74", "Lago"],
+    "3": ["Strv 81", "Strv 103A-3"],
+    "4": ["Strv 103-25", "Strv 103A"],
+    "5": ["Strv 103B", "Strv 103-44"],
+    "6": ["Strv 103B", "Strv 103A-2"],
+    "7": ["Strv 103B-2"],
+    "8": ["Strv 103D"],
+    "9": ["Strv K"],
+    "10": ["Strv 103B-2"]
+  },
+  "Польша": {
+    "1": ["7TP", "10TP"],
+    "2": ["14TP", "25TP"],
+    "3": ["50TP", "50TP fast"],
+    "4": ["50TP", "53TP Mark I"],
+    "5": ["60TP Lewandowskiego", "Pz.Kpfw. 39H(f)"],
+    "6": ["60TP", "59TP"],
+    "7": ["60TP Waldemara"],
+    "8": ["Pz.Kpfw. VII Ausf. 1"],
+    "9": ["60TP", "59-1TP"],
+    "10": ["59TP", "60TP"]
   }
 }
