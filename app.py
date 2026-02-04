@@ -2,265 +2,250 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 import sqlite3
 import hashlib
 import random
+import json
 from datetime import datetime
-from functools import wraps
+from werkzeug.routing import BaseConverter
 
 app = Flask(__name__)
-app.secret_key = 'tank-battalion-2026-super-secret'
+app.secret_key = 'tank-battalion-2026-v2'
 
-# АДМИНЫ (пароли НЕ видны в коде!)
-ADMIN_CREDENTIALS = {
-    'CatNap': 'e8f9c2d1a5b7e3f4',  # Хеш от 120187
-    'Назар': 'e8f9c2d1a5b7e3f4'    # Тот же хеш
-}
+# АДМИНЫ (пароли НЕ видны!)
+ADMIN_USERS = {'CatNap': '120187', 'Назар': '120187'}
+
 def init_db():
     conn = sqlite3.connect('tanks.db', check_same_thread=False)
     c = conn.cursor()
     
-    # Чат
+    # ОСНОВНЫЕ ТАБЛИЦЫ
     c.execute('''CREATE TABLE IF NOT EXISTS messages 
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  username TEXT, message TEXT, timestamp TEXT)''')
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, message TEXT, timestamp TEXT)''')
     
-    # Заметки
     c.execute('''CREATE TABLE IF NOT EXISTS notes 
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  title TEXT, content TEXT, timestamp TEXT)''')
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, timestamp TEXT, username TEXT)''')
     
-    # Пользователи
     c.execute('''CREATE TABLE IF NOT EXISTS users 
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  username TEXT UNIQUE, password TEXT, role TEXT)''')
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, created_at TEXT)''')
     
-    # Лидерборд
     c.execute('''CREATE TABLE IF NOT EXISTS leaderboard 
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  username TEXT, score INTEGER DEFAULT 0, updated_at TEXT)''')
+                 (username TEXT PRIMARY KEY, score INTEGER DEFAULT 0, updated_at TEXT)''')
     
-    # Гараж
     c.execute('''CREATE TABLE IF NOT EXISTS garage 
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  username TEXT, tank_name TEXT, bought_at TEXT)''')
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, tank_name TEXT, bought_at TEXT)''')
     
-    # Бои
-    c.execute('''CREATE TABLE IF NOT EXISTS battles 
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  username TEXT, mode TEXT, result TEXT, reward INTEGER, timestamp TEXT)''')
+    # ТЕСТОВЫЕ ДАННЫЕ
+    c.execute("INSERT OR IGNORE INTO users (username, password, created_at) VALUES ('test', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', ?)", 
+              (datetime.now().strftime('%Y-%m-%d'),))
+    c.execute("INSERT OR IGNORE INTO leaderboard (username, score, updated_at) VALUES ('test', 1000, ?)", 
+              (datetime.now().strftime('%Y-%m-%d %H:%M'),))
     
+    conn.commit()
+    conn.close()
+
+# ЗВАНИЯ
+def get_rank(score):
+    ranks = {0:"🪖 Новобранец", 100:"🔫 Рядовой", 1000:"⭐ Капрал", 5000:"⚔️ Сержант", 
+             25000:"🎖️ Старшина", 100000:"👑 Лейтенант", 500000:"🏆 Капитан", 1000000:"🔥 Ветеран"}
+    for threshold, rank_name in sorted(ranks.items(), reverse=True):
+        if score >= threshold: return rank_name
+    return "🪖 Новобранец"
+
+def update_score(username, points):
+    conn = sqlite3.connect('tanks.db', check_same_thread=False)
+    c = conn.cursor()
+    c.execute("INSERT OR REPLACE INTO leaderboard (username, score, updated_at) VALUES (?, COALESCE((SELECT score FROM leaderboard WHERE username=?), 0)+?, ?)",
+              (username, username, points, datetime.now().strftime('%Y-%m-%d %H:%M')))
     conn.commit()
     conn.close()
 
 init_db()
-def get_tankist_rank(score):
-    ranks = [
-        (0, "Новобранец"),
-        (100, "Рядовой"), (500, "Ефрейтор"), (1000, "Капрал"),
-        (2500, "Мастер-капрал"), (5000, "Сержант"), (10000, "Штаб-сержант"),
-        (25000, "Мастер-сержант"), (50000, "Первый сержант"), (100000, "Сержант-майор"),
-        (250000, "Уорэнт-офицер 1"), (500000, "Уорэнт-офицер 2"),
-        (750000, "Уорэнт-офицер 3"), (1000000, "Уорэнт-офицер 4"), (1500000, "Уорэнт-офицер 5"),
-        (2000000, "Младший лейтенант"), (3000000, "Лейтенант"), (5000000, "Старший лейтенант"),
-        (7500000, "Капитан"), (10000000, "Майор"), (15000000, "Подполковник"),
-        (20000000, "Полковник"), (25000000, "Бригадир"), (30000000, "Генерал-майор"),
-        (40000000, "Генерал-лейтенант"), (50000000, "Генерал"), (75000000, "Маршал"),
-        (100000000, "Фельдмаршал"), (150000000, "Командор ⭐"), (250000000, "Генералиссимус ⭐⭐"),
-        (500000000, "Легенда ⭐⭐⭐"), (999999999, "Ветеран Tank Battalion 🔥🔥🔥")
-    ]
-    for threshold, rank in reversed(ranks):
-        if score >= threshold:
-            return rank
-    return "Новобранец"
 
-def get_rank_icon(rank):
-    if "Ветеран" in rank: return "🔥🔥🔥"
-    if "Легенда" in rank: return "⭐⭐⭐"
-    if "Генералиссимус" in rank: return "⭐⭐"
-    if "Командор" in rank: return "⭐"
-    if "Фельдмаршал" in rank: return "⚔️"
-    if "Маршал" in rank: return "👑"
-    if "Генерал" in rank: return "🎖️"
-    return ""
-def get_user_score(username):
-    conn = sqlite3.connect('tanks.db')
-    c = conn.cursor()
-    c.execute("SELECT score FROM leaderboard WHERE username=? ORDER BY updated_at DESC LIMIT 1", (username,))
-    result = c.fetchone()
-    conn.close()
-    return result[0] if result else 0
-
-def update_user_score(username, points):
-    conn = sqlite3.connect('tanks.db')
-    c = conn.cursor()
-    c.execute("""
-        INSERT OR REPLACE INTO leaderboard (username, score, updated_at) 
-        VALUES (?, COALESCE((SELECT score FROM leaderboard WHERE username=?), 0) + ?, ?)
-    """, (username, username, points, datetime.now().strftime('%Y-%m-%d %H:%M')))
-    conn.commit()
-    conn.close()
-
-def buy_tank(username, tank_name):
-    conn = sqlite3.connect('tanks.db')
-    c = conn.cursor()
-    c.execute("INSERT OR IGNORE INTO garage (username, tank_name, bought_at) VALUES (?, ?, ?)",
-              (username, tank_name, datetime.now().strftime('%Y-%m-%d %H:%M')))
-    conn.commit()
-    conn.close()
+# ===== ОСНОВНЫЕ РОУТЫ =====
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/chat', methods=['GET', 'POST'])
-def chat():
-    username = session.get('username', 'Танкист')
-    
-    if request.method == 'POST':
-        message = request.form.get('message', '').strip()[:200]
-        if message:
-            score = get_user_score(username)
-            rank = get_tankist_rank(score)
-            display_name = f"{get_rank_icon(rank)}[{rank}] {username}"
-            
-            conn = sqlite3.connect('tanks.db')
-            c = conn.cursor()
-            c.execute("INSERT INTO messages (username, message, timestamp) VALUES (?, ?, ?)",
-                     (display_name, message, datetime.now().strftime('%H:%M')))
-            update_user_score(username, 5)
-            conn.commit()
-            conn.close()
-            return jsonify({'status': 'ok'})
-    
-    conn = sqlite3.connect('tanks.db')
-    c = conn.cursor()
-    c.execute("SELECT username, message, timestamp FROM messages ORDER BY id DESC LIMIT 50")
-    messages = c.fetchall()
-    conn.close()
-    return jsonify({'messages': messages[::-1]})
-@app.route('/notes', methods=['GET', 'POST'])
-def notes():
-    if request.method == 'POST':
-        username = session.get('username', 'Танкист')
-        title = request.form.get('title', 'Заметка')[:50]
-        content = request.form.get('content', '')[:500]
-        
-        if content:
-            conn = sqlite3.connect('tanks.db')
-            c = conn.cursor()
-            c.execute("INSERT INTO notes (title, content, timestamp) VALUES (?, ?, ?)",
-                     (title, content, datetime.now().strftime('%H:%M')))
-            update_user_score(username, 10)
-            conn.commit()
-            conn.close()
-            return jsonify({'status': 'ok'})
-    
-    conn = sqlite3.connect('tanks.db')
-    c = conn.cursor()
-    c.execute("SELECT title, content, timestamp FROM notes ORDER BY id DESC LIMIT 10")
-    notes_list = c.fetchall()
-    conn.close()
-    return jsonify({'notes': notes_list})
-
-@app.route('/api/rank')
-def api_rank():
-    username = session.get('username', 'Танкист')
-    score = get_user_score(username)
-    rank = get_tankist_rank(score)
-    return jsonify({'username': username, 'rank': rank, 'score': score})
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.form['username'].strip()
+        password = request.form['password'].strip()
         
-        # Секретные админы
-        if username in ADMIN_CREDENTIALS and hashlib.sha256(password.encode()).hexdigest()[:10] == ADMIN_CREDENTIALS[username]:
+        # АДМИНЫ
+        if username in ADMIN_USERS and ADMIN_USERS[username] == password:
             session['username'] = username
             session['is_admin'] = True
-            flash('🔥 Админ-доступ!', 'success')
-            return redirect(url_for('index'))
+            flash('🔥 Админ-доступ активирован!', 'success')
+            return redirect('/')
         
-        # Обычные пользователи
-        password_hash = hashlib.sha256(password.encode()).hexdigest()
-        conn = sqlite3.connect('tanks.db')
+        # ОБЫЧНЫЕ
+        conn = sqlite3.connect('tanks.db', check_same_thread=False)
         c = conn.cursor()
-        c.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password_hash))
+        c.execute("SELECT * FROM users WHERE username=? AND password=?", 
+                  (username, hashlib.sha256(password.encode()).hexdigest()))
         user = c.fetchone()
         conn.close()
         
         if user:
             session['username'] = username
-            flash('✅ В бою!', 'success')
-            return redirect(url_for('index'))
-        flash('❌ Неверно!', 'error')
+            flash('✅ Добро пожаловать в бой!', 'success')
+            return redirect('/')
+        flash('❌ Неверный логин/пароль', 'error')
     
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        password = hashlib.sha256(request.form['password'].encode()).hexdigest()
+        username = request.form['username'].strip()
+        password = request.form['password'].strip()
         
-        conn = sqlite3.connect('tanks.db')
+        conn = sqlite3.connect('tanks.db', check_same_thread=False)
         c = conn.cursor()
         try:
-            c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+            c.execute("INSERT INTO users (username, password, created_at) VALUES (?, ?, ?)",
+                     (username, hashlib.sha256(password.encode()).hexdigest(), datetime.now().strftime('%Y-%m-%d')))
             conn.commit()
-            flash('✅ Зарегистрирован!', 'success')
-            return redirect(url_for('login'))
-        except:
-            flash('❌ Пользователь есть!', 'error')
+            flash('✅ Регистрация успешна! Войдите.', 'success')
+            return redirect('/login')
+        except sqlite3.IntegrityError:
+            flash('❌ Пользователь уже существует!', 'error')
         conn.close()
     return render_template('register.html')
-@app.route('/battle/<mode>', methods=['POST'])
-def battle(mode):
-    username = session.get('username', 'Танкист')
-    data = request.get_json() or {}
-    player_tank = data.get('tank', 'Т-34')
-    
-    if mode == 'pvp':
-        reward = random.randint(100, 500)
-        result = f"🏆 PVP +{reward} очков!"
-    else:  # pve
-        bot_tanks = ['ИС-7', 'Tiger II', 'Maus', 'T29']
-        bot_tank = random.choice(bot_tanks)
-        player_hp, bot_hp = 1200, 1400
-        
-        for _ in range(5):
-            bot_hp -= random.randint(250, 400)
-            if bot_hp <= 0: 
-                reward, result = 250, f"✅ {player_tank} → {bot_tank}"
-                break
-            player_hp -= random.randint(200, 350)
-            if player_hp <= 0:
-                reward, result = 75, f"❌ {bot_tank} → {player_tank}"
-                break
-        else:
-            reward, result = 125, "🤝 Ничья"
-    
-    update_user_score(username, reward)
-    return jsonify({'result': result, 'reward': reward})
-
-@app.route('/api/garage')
-def api_garage():
-    username = session.get('username', 'Танкист')
-    conn = sqlite3.connect('tanks.db')
-    c = conn.cursor()
-    c.execute("SELECT tank_name FROM garage WHERE username=?", (username,))
-    tanks = [row[0] for row in c.fetchall()]
-    conn.close()
-    return jsonify({'tanks': tanks or ['Т-34']})
-
-@app.route('/buy_tank', methods=['POST'])
-def buy_tank_route():
-    username = session.get('username', 'Танкист')
-    tank = request.json.get('tank')
-    buy_tank(username, tank)
-    return jsonify({'status': 'Куплен!'})
 
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('index'))
+    flash('👋 До новых боёв!', 'success')
+    return redirect('/')
+
+# ===== ЧАТ =====
+@app.route('/api/chat/messages', methods=['GET'])
+def chat_messages():
+    conn = sqlite3.connect('tanks.db', check_same_thread=False)
+    c = conn.cursor()
+    c.execute("SELECT username, message, timestamp FROM messages ORDER BY id DESC LIMIT 50")
+    messages = [{'username': row[0], 'message': row[1], 'time': row[2]} for row in c.fetchall()]
+    conn.close()
+    return jsonify({'messages': messages[::-1]})
+
+@app.route('/api/chat/send', methods=['POST'])
+def chat_send():
+    username = session.get('username', 'Гость')
+    message = request.json.get('message', '').strip()[:100]
+    
+    if message:
+        score = 0
+        conn = sqlite3.connect('tanks.db', check_same_thread=False)
+        c = conn.cursor()
+        c.execute("SELECT score FROM leaderboard WHERE username=?", (username,))
+        result = c.fetchone()
+        if result: score = result[0]
+        
+        rank = get_rank(score)
+        display_name = f"{rank} {username}"
+        
+        c.execute("INSERT INTO messages (username, message, timestamp) VALUES (?, ?, ?)",
+                 (display_name, message, datetime.now().strftime('%H:%M')))
+        update_score(username, 5)
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'ok'})
+    return jsonify({'status': 'error'})
+
+# ===== ЗАМЕТКИ =====
+@app.route('/api/notes', methods=['GET', 'POST'])
+def notes():
+    username = session.get('username', 'Гость')
+    
+    if request.method == 'POST':
+        title = request.json.get('title', 'Заметка')[:50]
+        content = request.json.get('content', '')[:500]
+        if content:
+            conn = sqlite3.connect('tanks.db', check_same_thread=False)
+            c = conn.cursor()
+            c.execute("INSERT INTO notes (title, content, timestamp, username) VALUES (?, ?, ?, ?)",
+                     (title, content, datetime.now().strftime('%H:%M'), username))
+            update_score(username, 10)
+            conn.commit()
+            conn.close()
+            return jsonify({'status': 'ok'})
+    
+    conn = sqlite3.connect('tanks.db', check_same_thread=False)
+    c = conn.cursor()
+    c.execute("SELECT title, content, timestamp FROM notes WHERE username=? OR username='' ORDER BY id DESC LIMIT 10", (username,))
+    notes_list = [{'title': row[0], 'content': row[1], 'time': row[2]} for row in c.fetchall()]
+    conn.close()
+    return jsonify({'notes': notes_list})
+
+# ===== БОИ =====
+@app.route('/api/battle/<mode>', methods=['POST'])
+def battle(mode):
+    username = session.get('username', 'Гость')
+    tank = request.json.get('tank', 'Т-34')
+    
+    if mode == 'pvp':
+        win_chance = random.random()
+        if win_chance > 0.6:
+            reward = random.randint(200, 500)
+            result = f"🏆 ПОБЕДА PVP! +{reward}"
+        elif win_chance > 0.3:
+            reward = 100
+            result = f"🤝 НИЧЬЯ PVP! +{reward}"
+        else:
+            reward = 50
+            result = f"⚔️ ПОРАЖЕНИЕ PVP! +{reward}"
+    else:  # pve
+        bot_tank = random.choice(['ИС-7', 'Tiger II', 'Maus', 'T29'])
+        reward = random.randint(100, 300)
+        result = f"🎯 {tank} vs {bot_tank}! +{reward}"
+    
+    update_score(username, reward)
+    return jsonify({'result': result, 'reward': reward, 'tank': tank})
+
+# ===== ГАРАЖ И КАТАЛОГ =====
+@app.route('/api/garage')
+def garage():
+    username = session.get('username', 'Гость')
+    conn = sqlite3.connect('tanks.db', check_same_thread=False)
+    c = conn.cursor()
+    c.execute("SELECT DISTINCT tank_name FROM garage WHERE username=?", (username,))
+    tanks = [row[0] for row in c.fetchall()]
+    conn.close()
+    return jsonify({'tanks': tanks or ['Т-34']})
+
+@app.route('/api/buy_tank', methods=['POST'])
+def buy_tank():
+    username = session.get('username', 'Гость')
+    tank = request.json.get('tank')
+    if tank:
+        conn = sqlite3.connect('tanks.db', check_same_thread=False)
+        c = conn.cursor()
+        c.execute("INSERT OR IGNORE INTO garage (username, tank_name, bought_at) VALUES (?, ?, ?)",
+                 (username, tank, datetime.now().strftime('%Y-%m-%d %H:%M')))
+        conn.commit()
+        conn.close()
+        return jsonify({'status': '✅ Танк куплен!'})
+    return jsonify({'status': '❌ Ошибка'})
+
+@app.route('/api/tanks')
+def tanks():
+    return jsonify({
+        "СССР": {"3": ["Т-34", "КВ-1"], "5": ["ИС-3"], "7": ["ИС-7"], "10": ["Obj.277"]},
+        "Германия": {"5": ["Tiger I"], "7": ["Tiger II"], "8": ["Maus"], "10": ["E-100"]},
+        "США": {"5": ["T29"], "8": ["M103"], "10": ["T110E5"]}
+    })
+
+@app.route('/api/stats')
+def stats():
+    username = session.get('username', 'Гость')
+    conn = sqlite3.connect('tanks.db', check_same_thread=False)
+    c = conn.cursor()
+    c.execute("SELECT score FROM leaderboard WHERE username=?", (username,))
+    score_result = c.fetchone()
+    score = score_result[0] if score_result else 0
+    rank = get_rank(score)
+    conn.close()
+    return jsonify({'username': username, 'score': score, 'rank': rank})
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True)
