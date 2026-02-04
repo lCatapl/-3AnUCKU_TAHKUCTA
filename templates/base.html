@@ -1,74 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Записки Танкиста</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
-    <style>
-        nav {
-            background: linear-gradient(90deg, #2c1810, #1a0f0b);
-            padding: 15px 30px;
-            color: #ffd700;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 20px rgba(255,215,0,0.3);
-            font-family: 'Courier New', monospace;
-        }
-        nav a {
-            color: #ffd700;
-            text-decoration: none;
-            margin: 0 15px;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-        nav a:hover {
-            background: rgba(255,215,0,0.2);
-            transform: scale(1.05);
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: rgba(0,0,0,0.5);
-            padding: 10px 20px;
-            border-radius: 25px;
-            border: 2px solid #ffd700;
-        }
-        .rank-display {
-            color: #44ff44;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .alert {
-            padding: 15px;
-            margin: 15px 30px;
-            border-radius: 10px;
-            border-left: 5px solid #ffd700;
-        }
-        .alert.success { background: rgba(0,255,0,0.1); border-color: #44ff44; }
-        .alert.error { background: rgba(255,0,0,0.1); border-color: #ff4444; }
-    </style>
 </head>
 <body>
-    <nav>
-        <div class="nav-links">
-            <a href="/">🏁 Записки</a>
-            <a href="/tanks">🎖️ Танки</a>
-            <a href="/leaderboard">🏆 Лидерборд</a>
-            <a href="/chat">📡 Чат</a>
-        </div>
-        <div class="user-info">
+    <nav style="background: linear-gradient(90deg, #1a1a1a, #2c2c2c); padding: 1rem; display: flex; justify-content: space-between; color: white;">
+        <div><h2>🏁 Записки Танкиста</h2></div>
+        <div>
             {% if session.username %}
-                <span class="rank-display" id="nav-rank">
-                    👋 {{ session.username }} 
-                    <span id="rank-text">[Загрузка звания...]</span>
-                </span>
-                <a href="/logout">🚪 Выйти</a>
+                <span style="color: #44ff44; font-weight: bold;">👋 {{ session.username }}</span>
+                <a href="/logout" style="color: #ff4444; margin-left: 1rem;">Выйти</a>
             {% else %}
-                <a href="/login">🔐 Войти</a>
-                <a href="/register">📝 Регистрация</a>
+                <a href="/login" style="color: white; margin-right: 1rem;">🔐 Войти</a>
+                <a href="/register" style="color: #44ff44;">📝 Регистрация</a>
             {% endif %}
         </div>
     </nav>
@@ -76,13 +24,11 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div class="alert {{ category }}">{{ message }}</div>
+                <div class="alert alert-{{ category }}">{{ message }}</div>
             {% endfor %}
         {% endif %}
     {% endwith %}
 
-    <main style="padding: 20px; min-height: calc(100vh - 120px);">
-        {% block content %}{% endblock %}
-    </main>
+    <main>{% block content %}{% endblock %}</main>
 </body>
 </html>
