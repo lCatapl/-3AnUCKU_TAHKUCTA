@@ -4,28 +4,85 @@
     <title>Записки Танкиста</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <style>
+        nav {
+            background: linear-gradient(90deg, #2c1810, #1a0f0b);
+            padding: 15px 30px;
+            color: #ffd700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(255,215,0,0.3);
+            font-family: 'Courier New', monospace;
+        }
+        nav a {
+            color: #ffd700;
+            text-decoration: none;
+            margin: 0 15px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        nav a:hover {
+            background: rgba(255,215,0,0.2);
+            transform: scale(1.05);
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 2px solid #ffd700;
+        }
+        .rank-display {
+            color: #44ff44;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .alert {
+            padding: 15px;
+            margin: 15px 30px;
+            border-radius: 10px;
+            border-left: 5px solid #ffd700;
+        }
+        .alert.success { background: rgba(0,255,0,0.1); border-color: #44ff44; }
+        .alert.error { background: rgba(255,0,0,0.1); border-color: #ff4444; }
+    </style>
 </head>
 <body>
     <nav>
-        <a href="/">Записки</a>
-        <a href="/tanks">Танки</a>
-        <a href="/leaderboard">Лидерборд</a>
-        <a href="/chat">Чат</a>
-        {% if session.username %}
-            <span>{{ current_user.username }} [{{ current_user.role }}]</span>
-            <a href="/logout">Выйти</a>
-        {% else %}
-            <a href="/login">Войти</a>
-        {% endif %}
+        <div class="nav-links">
+            <a href="/">🏁 Записки</a>
+            <a href="/tanks">🎖️ Танки</a>
+            <a href="/leaderboard">🏆 Лидерборд</a>
+            <a href="/chat">📡 Чат</a>
+        </div>
+        <div class="user-info">
+            {% if session.username %}
+                <span class="rank-display" id="nav-rank">
+                    👋 {{ session.username }} 
+                    <span id="rank-text">[Загрузка звания...]</span>
+                </span>
+                <a href="/logout">🚪 Выйти</a>
+            {% else %}
+                <a href="/login">🔐 Войти</a>
+                <a href="/register">📝 Регистрация</a>
+            {% endif %}
+        </div>
     </nav>
-    {% with messages = get_flashed_messages() %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            {% for message in messages %}
-                <div class="alert">{{ message }}</div>
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
             {% endfor %}
         {% endif %}
     {% endwith %}
-    {% block content %}{% endblock %}
-</body>
 
+    <main style="padding: 20px; min-height: calc(100vh - 120px);">
+        {% block content %}{% endblock %}
+    </main>
+</body>
 </html>
