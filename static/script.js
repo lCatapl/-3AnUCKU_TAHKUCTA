@@ -213,3 +213,51 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
+// Бой 1v1
+async function startBattle() {
+    const tankSelect = document.getElementById('battle-tank');
+    const resultDiv = document.getElementById('battle-result');
+    const statsDiv = document.getElementById('battle-stats');
+    
+    const playerTank = tankSelect.value;
+    
+    // Анимация "загрузка"
+    resultDiv.innerHTML = '🎯 Наводимся... <span id="loading-dots">...</span>';
+    statsDiv.innerHTML = '';
+    
+    const dots = document.getElementById('loading-dots');
+    let dotCount = 0;
+    const dotInterval = setInterval(() => {
+        dots.textContent = '.'.repeat(++dotCount % 4);
+    }, 300);
+    
+    try {
+        const response = await fetch('/battle', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({tank: playerTank})
+        });
+        
+        clearInterval(dotInterval);
+        const data = await response.json();
+        
+        resultDiv.innerHTML = `
+            <div style="font-size: 24px; margin-bottom: 10px;">${data.result}</div>
+            <div style="color: #ffd700; font-size: 20px;">+${data.reward} очков!</div>
+        `;
+        resultDiv.style.borderLeftColor = data.reward >= 250 ? '#44ff44' : '#ffaa44';
+        
+        statsDiv.innerHTML = `
+            Твой танк: ${playerTank} | Бот: ${data.bot_tank}<br>
+            Награда: ${data.reward} очков → Новое звание через релоад чата!
+        `;
+        
+        // Звук победы (визуальный)
+        createExplosion(window.innerWidth / 2, window.innerHeight / 2);
+        
+    } catch(e) {
+        clearInterval(dotInterval);
+        resultDiv.innerHTML = '❌ Ошибка сервера. Попробуй ещё раз!';
+        resultDiv.style.borderLeftColor = '#ff4444';
+    }
+}
