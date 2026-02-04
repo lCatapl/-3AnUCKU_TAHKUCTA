@@ -51,6 +51,37 @@
     </div>
 </div>
 
+<!-- В секцию каталога -->
+<div class="section">
+    <h2>⚔️ БОЙ 1v1</h2>
+    <select id="battle-tank">
+        <option>Т-34</option>
+        <option>ИС-7</option>
+        <option>Tiger II</option>
+        <option>Maus</option>
+    </select>
+    <button onclick="startBattle()">🚀 В БОЙ!</button>
+    <div id="battle-result"></div>
+</div>
+
+<!-- ⚔️ БОЙ 1v1 ПРОТИВ БОТА ⚔️ -->
+<div class="section">
+    <h2>⚔️ БОЙ 1v1</h2>
+    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
+        <select id="battle-tank" style="flex: 1; min-width: 150px;">
+            <option value="Т-34">🇷🇺 Т-34 (IV)</option>
+            <option value="ИС-7">🇷🇺 ИС-7 (X)</option>
+            <option value="Tiger II">🇩🇪 Tiger II (VII)</option>
+            <option value="Maus">🇩🇪 Maus (X)</option>
+            <option value="T29">🇺🇸 T29 (VIII)</option>
+            <option value="AMX 50 120">🇫🇷 AMX 50 120 (VIII)</option>
+        </select>
+        <button onclick="startBattle()" style="padding: 15px 30px; font-size: 18px;">🚀 В БОЙ!</button>
+    </div>
+    <div id="battle-result" style="background: rgba(0,0,0,0.8); padding: 20px; border-radius: 10px; border-left: 5px solid #ff4444; min-height: 60px; display: flex; align-items: center;"></div>
+    <div id="battle-stats" style="margin-top: 15px; font-size: 14px; color: #aaa;"></div>
+</div>
+
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 {% endblock %}
