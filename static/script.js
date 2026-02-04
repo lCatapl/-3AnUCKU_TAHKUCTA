@@ -1,3 +1,23 @@
+// Динамические звания в навигации
+async function loadUserRank() {
+    try {
+        const res = await fetch('/api/rank');
+        const data = await res.json();
+        const rankEl = document.getElementById('rank-text');
+        if (rankEl) {
+            rankEl.textContent = `[${data.rank}]`;
+        }
+    } catch(e) {
+        document.getElementById('rank-text').textContent = '[Танкист]';
+    }
+}
+
+// Автозагрузка при старте
+if (document.getElementById('rank-text')) {
+    loadUserRank();
+    setInterval(loadUserRank, 30000); // Обновление каждые 30 сек
+}
+
 // Данные танков WoT (сокращённый каталог для скорости)
 const tanksData = {
     "СССР": {
@@ -261,3 +281,4 @@ async function startBattle() {
         resultDiv.style.borderLeftColor = '#ff4444';
     }
 }
+
