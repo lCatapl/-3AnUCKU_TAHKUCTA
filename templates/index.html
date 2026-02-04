@@ -1,0 +1,56 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+{% block title %}Tank Battalion{% endblock %}
+{% block content %}
+<div class="tank-container" id="tank">
+    <div class="tank" id="tank-body"></div>
+</div>
+
+<div class="hud">
+    <h1>🏁 TANK BATTALION v2.0 🏁</h1>
+    
+    <!-- Чат -->
+    <div class="section">
+        <h2>📡 Боевая частота</h2>
+        <div id="chat-container"></div>
+        <form id="chat-form">
+            <input type="text" id="chat-input" placeholder="Сообщение в эфир..." required>
+            <button type="submit">📤 Отправить</button>
+        </form>
+    </div>
+
+    <!-- Заметки -->
+    <div class="section">
+        <h2>📝 Записки танкиста</h2>
+        <div id="notes-list"></div>
+        <form id="notes-form">
+            <input type="text" id="note-title" placeholder="Заголовок">
+            <textarea id="note-content" placeholder="Текст..." rows="3"></textarea>
+            <button type="submit">💾 Сохранить</button>
+        </form>
+    </div>
+
+    <!-- Каталог танков -->
+    <div class="section">
+        <h2>🎖️ Каталог техники</h2>
+        <div class="filters">
+            <select id="nation-filter">
+                <option value="">🌍 Все нации</option>
+                <option value="СССР">🇷🇺 СССР</option>
+                <option value="Германия">🇩🇪 Германия</option>
+                <option value="США">🇺🇸 США</option>
+            </select>
+            <select id="tier-filter">
+                <option value="">⚙️ Все уровни</option>
+                <option value="10">X</option>
+                <option value="9">IX</option>
+            </select>
+            <button onclick="clearFilters()">🔄 Сброс</button>
+        </div>
+        <div id="tank-catalog" class="tank-grid"></div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% endblock %}
