@@ -1,72 +1,44 @@
 {% extends "base.html" %}
-{% block title %}Tank Battalion{% endblock %}
 {% block content %}
-<div class="main-container">
-    <!-- ЛЕВАЯ КОЛОНОК (80%) - ВСЁ ОСНОВНОЕ -->
+<div class="container">
     <div class="left-panel">
-        <!-- Чат -->
-        <div class="section">
-            <h2>📡 Боевая частота</h2>
-            <div id="chat-container">Подключение...</div>
-            <form id="chat-form">
-                <input type="text" id="chat-input" placeholder="Сообщение..." required>
-                <button type="submit">📤</button>
-            </form>
-        </div>
-
-        <!-- Заметки -->
-        <div class="section">
-            <h2>📝 Записки танкиста</h2>
-            <div id="notes-list">Загрузка...</div>
-            <form id="notes-form">
-                <input type="text" id="note-title" placeholder="Заголовок">
-                <textarea id="note-content" placeholder="Заметка..." rows="3"></textarea>
-                <button type="submit">💾</button>
-            </form>
-        </div>
-
-        <!-- Бои 1v1 и 1vBot -->
-        <div class="section">
-            <h2>⚔️ БОИ</h2>
-            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
-                <button onclick="startPvP()">1v1 PVP</button>
-                <button onclick="startPvBot()">1vBot</button>
+        <div class="card">
+            <h3>📡 Чат</h3>
+            <div id="chat-messages">Загрузка...</div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Напиши в чат...">
+                <button onclick="sendChat()">📤</button>
             </div>
-            <div id="battle-result"></div>
         </div>
 
-        <!-- Статистика -->
-        <div class="section">
-            <h2>📊 Статистика</h2>
-            <div id="stats-panel">Загрузка...</div>
+        <div class="card">
+            <h3>📝 Заметки</h3>
+            <div id="notes-list">Загрузка...</div>
+            <div class="notes-input">
+                <input type="text" id="note-title" placeholder="Заголовок">
+                <textarea id="note-text" placeholder="Заметка..."></textarea>
+                <button onclick="saveNote()">💾</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>⚔️ БОИ</h3>
+            <button class="battle-btn" onclick="startBattle('pvp')">1v1 PVP</button>
+            <button class="battle-btn" onclick="startBattle('pve')">1vBot</button>
+            <div id="battle-result"></div>
         </div>
     </div>
 
-    <!-- ПРАВАЯ КОЛОНОК (20%) - ТАНК + ГАРАЖ + КАТАЛОГ -->
     <div class="right-panel">
-        <!-- Парallax танк -->
-        <div class="tank-zone">
-            <div class="tank-container" id="tank">
-                <div class="tank" id="tank-body"></div>
-            </div>
+        <div class="card">
+            <h3>📊 Статистика</h3>
+            <div id="stats">Загрузка...</div>
         </div>
-
-        <!-- Гараж -->
-        <div class="section">
-            <h2>🏪 Гараж (<span id="garage-count">0</span>)</h2>
-            <div id="garage-list"></div>
-        </div>
-
-        <!-- Каталог (компактный) -->
-        <div class="section">
-            <h2>🎖️ Каталог</h2>
-            <div class="filters">
-                <select id="nation-filter"><option>Все нации</option></select>
-                <select id="tier-filter"><option>Все уровни</option></select>
-            </div>
-            <div id="tank-catalog-compact"></div>
+        
+        <div class="card">
+            <h3>🏪 Гараж</h3>
+            <div id="garage-list">Т-34</div>
         </div>
     </div>
 </div>
-<script src="{{ url_for('static', filename='script.js') }}"></script>
 {% endblock %}
